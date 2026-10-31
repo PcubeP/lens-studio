@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { Dropzone } from '@/components/Dropzone'
 import { CompareSlider } from '@/components/CompareSlider'
 import { useLensModel, type RunResult } from '@/hooks/useLensModel'
