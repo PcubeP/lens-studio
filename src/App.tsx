@@ -31,6 +31,7 @@ export default function App() {
   const [mode, setMode] = useState<Mode>('cutout')
   const [job, setJob] = useState<Job | null>(null)
   const fileRef = useRef<File | null>(null)
+  const prevUrlRef = useRef<string | null>(null)
 
   const busy = state.phase === 'loading' || state.phase === 'processing'
   const activeMeta = MODES.find((m) => m.id === mode)!
@@ -69,11 +70,21 @@ export default function App() {
     [busy, job, process],
   )
 
+  // Revoke the previous object URL only when the URL genuinely changes, so
+  // switching modes (which reuses the same originalUrl) keeps the preview alive.
+  useEffect(() => {
+    const url = job?.originalUrl ?? null
+    const prev = prevUrlRef.current
+    if (prev && prev !== url) URL.revokeObjectURL(prev)
+    prevUrlRef.current = url
+  }, [job?.originalUrl])
+
+  // Revoke the final URL on unmount.
   useEffect(() => {
     return () => {
-      if (job) URL.revokeObjectURL(job.originalUrl)
+      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current)
     }
-  }, [job])
+  }, [])
 
   const avgDownload = state.downloads.length
     ? Math.round(state.downloads.reduce((sum, d) => sum + d.progress, 0) / state.downloads.length)
